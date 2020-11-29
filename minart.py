@@ -16,6 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 from argparse import ArgumentParser
+from math import sqrt
 from typing import Optional, Tuple
 
 from PIL import Image
@@ -103,15 +104,38 @@ COLOURS = (
  )
 
 
+def get_distance(
+    rgb1: Tuple[int, int, int],
+    rgb2: Tuple[int, int, int],
+) -> float:
+    return sqrt(
+        (rgb2[0] - rgb1[0]) ** 2
+        + (rgb2[1] - rgb1[1]) ** 2
+        + (rgb2[2] - rgb1[2]) ** 2
+    )
+
+
+def get_best_guess(rgb: Tuple[int, int, int]) -> tuple:
+    distances = [get_distance(c[-1], rgb) for c in COLOURS]
+    dmin = None
+    imin = None
+    for i, d in enumerate(distances):
+        if dmin is None or d < dmin:
+            dmin = d
+            imin = i
+    return COLOURS[imin]
+
+
 def get_colour(
     rgb: Tuple[int, int, int],
     guess: bool = False,
 ) -> Optional[tuple]:
     if guess:
-        raise NotImplementedError("Colour guessing is not implemented!")
-    for c in COLOURS:
-        if c[-1] == rgb:
-            return rgb
+        return get_best_guess(rgb)
+    else:
+        for c in COLOURS:
+            if c[-1] == rgb:
+                return c
     return None
 
 
@@ -130,7 +154,8 @@ def print_image(
     for y in range(rgb_im.height):
         for x in range(rgb_im.width):
             rgb = rgb_im.getpixel((x, y))
-            if colour := get_colour(rgb, guess) is not None:
+            colour = get_colour(rgb, guess)
+            if colour is not None:
                 print(f"{colour[ind]} ", end="")
             else:
                 print(f"{UNKNOWN[ind]} ", end="")
@@ -160,11 +185,11 @@ def main() -> int:
         help="guess color if no match",
     )
     args = parser.parse_args()
-    try:
-        print_image(args.filename, args.abbreviate, args.guess)
-    except Exception as err:
-        print(f"Runtime error: {err}")
-        return 1
+    # try:
+    print_image(args.filename, args.abbreviate, args.guess)
+    # except Exception as err:
+    #    print(f"Runtime error: {err}")
+    #    return 1
     return 0
 
 
