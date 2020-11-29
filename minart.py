@@ -165,11 +165,11 @@ def main() -> int:
         help="guess color if no match",
     )
     args = parser.parse_args()
-    # try:
-    print_image(args.filename, args.abbreviate, args.guess)
-    # except Exception as err:
-    #    print(f"Runtime error: {err}")
-    #    return 1
+    try:
+        print_image(args.filename, args.abbreviate, args.guess)
+    except Exception as err:
+       print(f"Runtime error: {err}")
+       return 1
     return 0
 
 
