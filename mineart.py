@@ -130,7 +130,7 @@ def print_image(
         ind = 0
     else:
         ind = 2
-    
+
     for y in range(rgb_im.height):
         for x in range(rgb_im.width):
             rgb = rgb_im.getpixel((x, y))
@@ -140,6 +140,31 @@ def print_image(
             else:
                 print(f"{UNKNOWN[ind]} ", end="")
         print("")
+
+
+def save_image(
+    filename: str,
+    savename: str,
+    use_abbr: bool = False,
+    guess: bool = False,
+) -> None:
+    with Image.open(filename) as im:
+        rgb_im = im.convert("RGB")
+    if use_abbr:
+        ind = 0
+    else:
+        ind = 2
+
+    with open(savename, 'w') as savefile:
+        for y in range(rgb_im.height):
+            for x in range(rgb_im.width):
+                rgb = rgb_im.getpixel((x, y))
+                colour = get_colour(rgb, guess)
+                if colour is not None:
+                    savefile.write(f"{colour[ind]} ")
+                else:
+                    savefile.write(f"{UNKNOWN[ind]} ")
+            savefile.write("\n")
 
 
 def main() -> int:
@@ -164,12 +189,20 @@ def main() -> int:
         default=False,
         help="guess color if no match",
     )
+    parser.add_argument(
+        "-s", "--save",
+        action="store",
+        type=str,
+        help="save to specified file instead of printing",
+    )
     args = parser.parse_args()
     try:
-        print_image(args.filename, args.abbreviate, args.guess)
+        if args.save is None:
+            print_image(args.filename, args.abbreviate, args.guess)
+        else:
+            save_image(args.filename, args.save, args.abbreviate, args.guess)
     except Exception as err:
        print(f"Runtime error: {err}")
-       return 1
     return 0
 
 
