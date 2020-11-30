@@ -187,7 +187,7 @@ def main() -> int:
         "-g", "--guess",
         action="store_true",
         default=False,
-        help="guess color if no match",
+        help="guess colour if no match",
     )
     parser.add_argument(
         "-s", "--save",
